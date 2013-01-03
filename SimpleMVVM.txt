@@ -1,0 +1,58 @@
+This live demo demostrates simple steps to create a business entity, serve it up using Web API, and to display it on client using MVVM pattern
+
+1. Add a Customer class
+public class Customer
+{
+	public int Id { get; set; }
+        public string Name { get; set; }
+        public int Age { get; set; }
+}
+2. Add an API controller: CustomerController with "API controller with empty read/write actions"
+3. Get method
+public IEnumerable<Customer> Get()
+{
+	return new Customer[] { 
+        	new Customer { Id = 1, Name= "A Customer", Age= 24},
+                new Customer { Id = 2, Name= "B Customer", Age = 30}
+	};
+}
+4. Index page - clean
+5. View
+<div data-bind="foreach: Customers">
+    <div data-bind="text: Id"></div>
+    <input data-bind="value: Name" />
+    <input data-bind="value: Age" />
+</div>
+6. Script
+@section Scripts
+{
+    <script src="~/Scripts/knockout-2.1.0.js"></script>
+    <script>
+        var viewModel = new pageViewModel();
+        function customerViewModel(id, name, age) {
+            this.Id = id;
+            this.Name = ko.observable(name);
+            this.Age = ko.observable(age);
+        }
+        function pageViewModel() {
+            this.Customers = ko.observableArray([]);
+        }
+        $(function () {
+            $.getJSON('/api/Customer',
+                function (data) {
+                    $.each(data, function (key, val) {
+                        viewModel.Customers.push(new customerViewModel(val.Id,
+                            val.Name, val.Age));
+                    });
+                });
+            ko.applyBindings(viewModel);
+        });
+    </script>
+}
+
+7. Add function
+this.Update = function () {
+                alert(this.Name());
+            };
+8. View
+<input type="button" data-bind="click: Update" value="Update" />
